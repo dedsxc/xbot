@@ -15,7 +15,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-def tweet_with_media(filename, title, link, comment):
+def tweet_with_media(filename=None, tweet_text=None, tweet_comment=None):
     # Tweet status with media
     options = Options()
     options.add_argument("--incognito")
@@ -39,12 +39,11 @@ def tweet_with_media(filename, title, link, comment):
 
     try:
         twitter_connect_selenium(driver)
-        status = f'{title}\nLink: {link}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in config.get("twitter", "hashtag_list").split(",") if hashtag.strip())}\n\n{config.get("twitter", "footer_text")}'
-        twitter_post_media_selenium(driver, status, filename)
+        twitter_post_media_selenium(driver, tweet_text, filename)
         # waiting to upload media
         time.sleep(10)
-        if comment is not None:
-            twitter_post_comment(driver, comment)
+        if tweet_comment is not None:
+            twitter_post_comment(driver, tweet_comment)
             # waiting to upload comment
             time.sleep(10)
     except Exception as e:
@@ -69,17 +68,18 @@ def twitter_connect_selenium(driver):
     driver.find_element(By.XPATH, "//button[@data-testid='LoginForm_Login_Button']").click()
     log.info("[twitter_connect_selenium] Connect successfull")
 
-def twitter_post_media_selenium(driver, status, filename):
+def twitter_post_media_selenium(driver, status, filename=None):
     # Wait for block to write comment
     WebDriverWait(driver, int(config.getint('global', 'selenium_timeout'))).until(
         EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'public-DraftStyleDefault-block')]")))
     driver.find_element(By.XPATH, "//div[contains(@class, 'public-DraftStyleDefault-block')]").send_keys(status)
-    if isinstance(filename, (list, tuple)):
-        files = "\n".join(filename)
-        driver.find_element(By.XPATH, "//input[@data-testid='fileInput']").send_keys(files)
-    else:
-        driver.find_element(By.XPATH, "//input[@data-testid='fileInput']").send_keys(filename)
-    driver.save_screenshot("screenshot/status_post.png")
+    if filename is not None:
+        if isinstance(filename, (list, tuple)):
+            files = "\n".join(filename)
+            driver.find_element(By.XPATH, "//input[@data-testid='fileInput']").send_keys(files)
+        else:
+            driver.find_element(By.XPATH, "//input[@data-testid='fileInput']").send_keys(filename)
+        driver.save_screenshot("screenshot/status_post.png")
 
     # Wait for media to be uploaded
     time.sleep(config.getint('global', 'selenium_timeout')) 
