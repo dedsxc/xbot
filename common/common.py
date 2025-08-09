@@ -21,3 +21,6 @@ def download_media(url, filename):
   except requests.RequestException as e:
       log.error(f"[download_media] Error downloading media: {e}")
       return None
+  
+def remove_non_bmp_chars(text):
+    return ''.join(c for c in text if ord(c) <= 0xFFFF)

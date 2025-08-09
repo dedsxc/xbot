@@ -20,7 +20,8 @@ class RedditBot:
         self.screenshot_directory = os.path.join(os.getcwd(), 'screenshot')
         self.delay = config.getint('reddit', 'delay', fallback=300)
         self.allowed_media_extension = ["jpg", "jpeg", "png", "mp4", "gif", "webp"]
-        
+        self.hashtag_list = config.get('twitter', 'hashtag_list', fallback='').split(',')
+        self.footer_text = config.get('twitter', 'footer_text')
 
     def run(self, db: RedisDataManager, reddit_submission: str, reddit_client: RedditScraper):
         while True:
@@ -38,12 +39,14 @@ class RedditBot:
                         filename = submission.media['reddit_video']['fallback_url'].split("/")[-2] + ".mp4"
                         reddit_media_path = self.media_directory + "/" + filename
                         download_media(submission.media['reddit_video']['fallback_url'], reddit_media_path)
-                        tweet_with_media(reddit_media_path, submission.title, submission.shortlink, None)
+                        status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                        tweet_with_media(reddit_media_path, status)
                         os.remove(reddit_media_path)
                     elif submission.url.split(".")[-1] in self.allowed_media_extension:
                         reddit_media_path = self.media_directory + "/" + submission.url.split("/")[-1]
                         download_media(submission.url, reddit_media_path)
-                        tweet_with_media(reddit_media_path, submission.title, submission.shortlink, None)
+                        status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                        tweet_with_media(reddit_media_path, status)
                         os.remove(reddit_media_path)
 
                     elif hasattr(submission, "is_gallery") and submission.is_gallery:
@@ -61,7 +64,8 @@ class RedditBot:
                                 medias_path.append(reddit_media_path)
                                     
                             # Post tweet with all media files
-                            tweet_with_media(medias_path, submission.title, submission.shortlink, None)
+                            status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                            tweet_with_media(medias_path, status)
                             # Remove downloaded media files
                             for media_path in medias_path:
                                 os.remove(media_path)

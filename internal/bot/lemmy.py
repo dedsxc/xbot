@@ -20,6 +20,8 @@ class LemmyBot:
         self.screenshot_directory = os.path.join(os.getcwd(), 'screenshot')
         self.delay = config.getint('lemmy', 'delay', fallback=300)
         self.allowed_media_extension = ["jpg", "jpeg", "png", "mp4", "gif", "webp"]
+        self.hashtag_list = config.get('twitter', 'hashtag_list', fallback='').split(',')
+        self.footer_text = config.get('twitter', 'footer_text')
 
     def run(self, db: RedisDataManager, community_name):
         # Initialize Lemmy API client
@@ -38,7 +40,8 @@ class LemmyBot:
                     if lemmy_post['url'].split(".")[-1] in self.allowed_media_extension:
                         lemmy_media_path = self.media_directory + "/" + lemmy_post['url'].split("/")[-1]
                         download_media(lemmy_post['url'], lemmy_media_path)
-                        tweet_with_media(lemmy_media_path, lemmy_post['name'], lemmy_post['ap_id'], None)
+                        status = f'{lemmy_post['name']}\nLink: {lemmy_post['ap_id']}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                        tweet_with_media(lemmy_media_path, status)
                         os.remove(lemmy_media_path)
                     else:
                         log.warning("[post_from_lemmy] no media found: {}".format(lemmy_post['url']))
