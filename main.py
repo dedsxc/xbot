@@ -41,7 +41,7 @@ def main():
         log.info("[main] Lemmy bot started with community: {}".format(config.get('lemmy', 'community_name')))
     if config.getboolean('reddit', 'enabled'):
         thread_run_reddit_bot = threading.Thread(target=RedditBot().run, args=(db, 
-                                                                               config.get('reddit', 'subreddit'),
+                                                                               config.get('reddit', 'subreddit_list', fallback='').split(','),
                                                                                RedditScraper(
                                                                                    user_agent=config.get('reddit', 'username'),
                                                                                    client_id=config.get('reddit', 'client_id'),
@@ -52,7 +52,7 @@ def main():
                                                                                )
                                                                            ))
         thread_run_reddit_bot.start()
-        log.info("[main] Reddit bot started with subreddit: {}".format(config.get('reddit', 'subreddit')))
+        log.info("[main] Reddit bot started with subreddits: {}".format(config.get('reddit', 'subreddit_list')))
 
 if __name__ == '__main__':
     main()
