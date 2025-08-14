@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   redis:
-    image: redis:latest@sha256:f957ce918b51f3ac10414244bedd0043c47db44a819f98b9902af1bd9d0afcea
+    image: redis:latest@sha256:e7d6b261beaa22b1dc001f438b677f1c691ac7805607d8979bae65fe0615c2e6
     container_name: redis
     ports:
       - "6379:6379"
