@@ -28,24 +28,24 @@ class LemmyBot:
         lemmyapi = LemmyScraper()
         while True:
             # Get last post from Lemmy r/unixporn
-            lemmy_post = lemmyapi.get_latest_posts(limit=1, sort='New', community_name=community_name)
+            lemmy_data = lemmyapi.get_latest_posts(limit=1, sort='New', community_name=community_name)
             try:
                 # Check for lemmy post if it exists
-                if not db.check_data_exist(lemmy_post['id']):
-                    # Insert lemmy_post_id on database
-                    db.insert_data(lemmy_post['id'])
+                if not db.check_data_exist(lemmy_data.post.id):
+                    # Insert lemmy_data_id on database
+                    db.insert_data(lemmy_data.post.id)
 
-                    log.info('[post_from_lemmy] New Lemmy post title: {}'.format(lemmy_post['name']))
-
-                    if lemmy_post['url'].split(".")[-1] in self.allowed_media_extension:
-                        lemmy_media_path = self.media_directory + "/" + lemmy_post['url'].split("/")[-1]
-                        download_media(lemmy_post['url'], lemmy_media_path)
-                        status = f'{lemmy_post['name']}\nLink: {lemmy_post['ap_id']}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                    log.info('[post_from_lemmy] New Lemmy post title: {}'.format(lemmy_data.post.name))
+                    print(lemmy_data.post.url)
+                    if lemmy_data.post.url.split(".")[-1] in self.allowed_media_extension:
+                        lemmy_media_path = self.media_directory + "/" + lemmy_data.post.url.split("/")[-1]
+                        download_media(lemmy_data.post.url, lemmy_media_path)
+                        status = f'{lemmy_data.post.name}\nLink: {lemmy_data.post.ap_id}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
                         tweet_with_media(lemmy_media_path, status)
                         os.remove(lemmy_media_path)
                     else:
-                        log.warning("[post_from_lemmy] no media found: {}".format(lemmy_post['url']))
-                        log.warning("[post_from_lemmy] url post: {}".format(lemmy_post['ap_id']))
+                        log.warning("[post_from_lemmy] no media found: {}".format(lemmy_data.post.url))
+                        log.warning("[post_from_lemmy] url post: {}".format(lemmy_data.post.ap_id))
             except Exception as e:
                 log.error("[post_from_lemmy] Error while posting tweet: {}".format(e))
             time.sleep(self.delay)
