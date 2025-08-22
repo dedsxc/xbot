@@ -13,6 +13,7 @@ from internal.api.reddit import RedditScraper
 # Bot functions
 from internal.bot.reddit import RedditBot
 from internal.bot.lemmy import LemmyBot
+from internal.bot.ollama import OllamaBot
 
 # HTTP Server
 from internal.http.server import start_server
@@ -35,6 +36,10 @@ def main():
         return
 
     # Start bots based on configuration
+    if config.getboolean('ollama', 'enabled'):
+        thread_run_ollama_bot = threading.Thread(target=OllamaBot().run)
+        thread_run_ollama_bot.start()
+        log.info("[main] Ollama bot started with model: {}".format(config.get('ollama', 'model')))
     if config.getboolean('lemmy', 'enabled'):
         thread_run_lemmy_bot = threading.Thread(target=LemmyBot().run, args=(db, config.get('lemmy', 'community_name')))
         thread_run_lemmy_bot.start()
