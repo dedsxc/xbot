@@ -54,7 +54,7 @@ def tweet_with_media(filename=None, tweet_text=None, tweet_comment=None):
 
 def twitter_connect_selenium(driver):
     # Fill username and click on "next" button
-    time.sleep(20)
+    time.sleep(10)
     driver.find_element(By.TAG_NAME, "input").send_keys(config.get('twitter', 'username'))
     driver.save_screenshot("screenshot/login.png")
     driver.find_elements(By.XPATH, "//button[@role='button']")[-3].click()
