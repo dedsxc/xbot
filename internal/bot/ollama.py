@@ -2,8 +2,9 @@ import time
 
 from internal.config import config
 from internal.api.ollama_client import OllamaAPI
-from internal.api.interact_browser import tweet_with_media
+from internal.api.selenium import tweet_with_media
 
+from common.logger import log
 
 class OllamaBot:
     def __init__(self):
@@ -16,5 +17,7 @@ class OllamaBot:
     def run(self):
         while True:
             res = self.api.chat(user_prompt=self.user_prompt)
-            tweet_with_media(filename=None, tweet_text=res.message['content'], tweet_comment=None)
+            msg_content = res.message['content']
+            log.info(f"[OllamaBot] Response: {msg_content}")
+            tweet_with_media(filename=None, tweet_text=msg_content, tweet_comment=None)
             time.sleep(self.delay)
