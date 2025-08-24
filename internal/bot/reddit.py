@@ -2,7 +2,7 @@ import os
 import time
 
 # API
-from internal.api.interact_browser import tweet_with_media
+from internal.api.selenium import tweet_with_media
 from internal.api.reddit import RedditScraper
 
 # Common
