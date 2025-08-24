@@ -1,9 +1,7 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/bot_unixporn?style=social)](https://twitter.com/intent/follow?screen_name=bot_unixporn)
 
-# Unixbot
+# xbot
 
-Twitter bot to tweet about NIX* configuration from https://www.reddit.com/r/unixporn/
+XBot is a Python-based Twitter/X automation bot designed to post tweets automatically based on multiple content providers.
 
-## Dependencies
-
-Download Chrome-driver : https://github.com/electron/electron/releases
+Check the status of the bot: [here](https://status.kien.cc/status/xbot)
