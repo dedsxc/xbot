@@ -56,7 +56,8 @@ def main():
                                                                                    client_secret=config.get('reddit', 'client_secret'),
                                                                                    username=config.get('reddit', 'username'),
                                                                                    password=config.get('reddit', 'password'),
-                                                                                   flair_list=config.get('reddit', 'flair_list').split(',')
+                                                                                   flair_list=config.get('reddit', 'flair_list').split(','),
+                                                                                   users_blacklist=config.get('reddit', 'users_blacklist').split(','),
                                                                                )
                                                                            ))
         thread_run_reddit_bot.start()
