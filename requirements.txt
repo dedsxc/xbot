@@ -5,5 +5,5 @@ redis==5.3.1
 requests==2.32.5
 fastapi==0.116.1
 uvicorn==0.36.0
-pydantic==2.11.9
+pydantic==2.12.3
 ollama==0.5.4
