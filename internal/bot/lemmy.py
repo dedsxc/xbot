@@ -2,7 +2,7 @@ import os
 import time
 
 # API
-from internal.api.selenium import tweet_with_media
+from internal.api.browser import tweet_with_media
 from internal.api.lemmy import LemmyScraper
 
 # Common
@@ -33,7 +33,7 @@ class LemmyBot:
                 # Check for lemmy post if it exists
                 if not db.check_data_exist(lemmy_post['id']):
                     # Insert lemmy_post_id on database
-                    db.insert_data(lemmy_post['id'])
+                    # db.insert_data(lemmy_post['id'])
 
                     log.info('[post_from_lemmy] New Lemmy post title: {}'.format(lemmy_post['name']))
 
