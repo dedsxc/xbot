@@ -2,7 +2,7 @@ import time
 
 from internal.config import config
 from internal.api.ollama_client import OllamaAPI
-from internal.api.selenium import tweet_with_media
+from internal.api.browser import tweet_with_media
 
 from common.logger import log
 

@@ -7,7 +7,7 @@ import queue
 # Common
 from common.logger import log
 from internal.models.buymeacoffee import CoffeeEvent
-from internal.api.selenium import tweet_with_media
+from internal.api.browser import tweet_with_media
 
 app = FastAPI()
 tweet_queue = queue.Queue()

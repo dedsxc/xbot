@@ -1,4 +1,4 @@
-import time
+import time, json
 
 # Common
 from internal.config import config
@@ -13,7 +13,31 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+def sanitize_cookie(cookie):
+    same_site = cookie.get("sameSite")
+    if same_site not in ("Strict", "Lax", "None"):
+        cookie["sameSite"] = "Lax" 
+    cookie.pop("hostOnly", None)
+    cookie.pop("session", None)
+    return cookie
 
+def import_external_cookies(driver, cookie_file, url):
+    driver.get(url)
+    time.sleep(5)
+
+    with open(cookie_file, "r") as f:
+        cookies = json.load(f)
+    fixed_cookies = [sanitize_cookie(c) for c in cookies]
+
+    for c in fixed_cookies:
+        try:
+            driver.add_cookie(c)
+        except Exception as e:
+            print(f"❌ Erreur cookie {c.get('name')}: {e}")
+
+    driver.refresh() 
+    print(f"✅ {len(fixed_cookies)} cookies importés avec succès")
+    
 def tweet_with_media(filename=None, tweet_text=None, tweet_comment=None):
     # Tweet status with media
     options = Options()
@@ -34,38 +58,18 @@ def tweet_with_media(filename=None, tweet_text=None, tweet_comment=None):
             renderer="Intel Iris OpenGL Engine",
             fix_hairline=True,
     )
-    driver.get("https://twitter.com/i/flow/login")
+    # --- import cookie file ---
+    cookie_file = config.get('global', 'cookie_file', fallback=None)
+    import_external_cookies(driver, cookie_file, "https://x.com")
+    driver.get("https://x.com")
 
     try:
-        twitter_connect_selenium(driver)
         twitter_post_media_selenium(driver, tweet_text, filename)
-        # waiting to upload media
-        time.sleep(10)
-        if tweet_comment is not None:
-            twitter_post_comment(driver, tweet_comment)
-            # waiting to upload comment
-            time.sleep(10)
     except Exception as e:
         driver.save_screenshot("screenshot/error.png")
         log.error("[twitter_connect_selenium] Error while connect in twitter with selenium: {}".format(e))
     finally:
         driver.quit()
-
-
-def twitter_connect_selenium(driver):
-    # Fill username and click on "next" button
-    time.sleep(10)
-    driver.find_element(By.TAG_NAME, "input").send_keys(config.get('twitter', 'username'))
-    driver.save_screenshot("screenshot/login.png")
-    driver.find_elements(By.XPATH, "//button[@role='button']")[-3].click()
-
-    # Fill password and click on "connect" button
-    WebDriverWait(driver, int(config.getint('global', 'selenium_timeout'))).until(
-        EC.presence_of_element_located((By.XPATH, "//input[@type='password']")))
-    driver.find_element(By.XPATH, "//input[@type='password']").send_keys(config.get('twitter', 'password'))
-    driver.save_screenshot("screenshot/login_password.png")
-    driver.find_element(By.XPATH, "//button[@data-testid='LoginForm_Login_Button']").click()
-    log.info("[twitter_connect_selenium] Connect successfull")
 
 def twitter_post_media_selenium(driver, status, filename=None):
     # Wait for block to write comment
@@ -89,22 +93,3 @@ def twitter_post_media_selenium(driver, status, filename=None):
     driver.save_screenshot("screenshot/last_media_upload.png")
     driver.find_element(By.XPATH, "//button[@data-testid='tweetButtonInline']").click()
     log.info("[twitter_post_media_selenium] post media successfull")
-
-
-def twitter_post_comment(driver, comment):
-    # Click on Reply button
-    WebDriverWait(driver, int(config.getint('global', 'selenium_timeout'))).until(
-        EC.presence_of_element_located((By.XPATH, "//button[@data-testid='reply']")))
-    driver.find_elements(By.XPATH, "//button[@data-testid='reply']")[0].click()
-
-    # Write comment
-    WebDriverWait(driver, int(config.getint('global', 'selenium_timeout'))).until(
-        EC.presence_of_element_located((By.XPATH, "//div[@data-testid='tweetTextarea_0']")))
-    driver.find_element(By.XPATH, "//div[@data-testid='tweetTextarea_0']").send_keys(comment)
-    driver.save_screenshot("screenshot/last_comment_upload.png")
-
-    # Post comment
-    WebDriverWait(driver, int(config.getint('global', 'selenium_timeout'))).until(
-        EC.presence_of_element_located((By.XPATH, "//button[@data-testid='tweetButton']")))
-    driver.find_element(By.XPATH, "//button[@data-testid='tweetButton']").click()
-    log.info("[twitter_post_comment] post comment successfull")
