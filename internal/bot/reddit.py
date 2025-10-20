@@ -32,7 +32,7 @@ class RedditBot:
                     # Check for reddit submission if it exists
                     if db.check_data_exist(submission.id):
                         # Insert submission_id on database
-                        # db.insert_data(submission.id)
+                        db.insert_data(submission.id)
 
                         log.info('[post_from_reddit] New Reddit post title: {}'.format(submission.title))
                         # check if submission content is a video
