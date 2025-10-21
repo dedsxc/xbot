@@ -1,0 +1,86 @@
+name: "Release docker image"
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "src/**"
+      - "Dockerfile"
+
+# need for release-please action
+permissions:
+  contents: write
+  id-token: write  
+  attestations: write
+  packages: write
+  actions: write
+  pull-requests: read
+
+env:
+  GHCR_REGISTRY: ghcr.io
+  GHCR_REGISTRY_REPO: dedsxc
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest 
+    outputs:
+      paths_released: ${{ steps.release-please.outputs.paths_released }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
+
+      - name: Generate Token
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2
+        id: app-token
+        with:
+          app-id: "${{ secrets.BOT_APP_ID }}"
+          private-key: "${{ secrets.BOT_APP_PRIV_KEY }}"
+
+      - uses: googleapis/release-please-action@c2a5a2bd6a758a0937f1ddb1e8950609867ed15c # v4
+        id: release-please
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          # Advanced configuration: https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md
+          config-file: .github/release-please-config.json
+          manifest-file: .github/.release-please-manifest.json
+      
+
+  # Run the following section to push docker image if a release is created
+  release-docker-image:
+    name: Release docker image
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: ${{ needs.release-please.outputs.paths_released != '[]' }}
+    strategy:
+      fail-fast: false 
+      matrix:
+        containers: ${{ fromJson(needs.release-please.outputs.paths_released) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      
+      - name: Get repository name
+        id: get_repo_name
+        run: |
+          result=$(echo "$GITHUB_REPOSITORY" | awk -F'/' '{print $2}')
+          echo "repo_name=$result" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
+    
+      - name: Configure Docker
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: dedsxc
+          password: ${{ secrets.CI_BOT_TOKEN }}
+
+      - name: Build-Push image
+        run: |
+          container=${{ matrix.containers }}
+          app_version=$(cat .github/.release-please-manifest.json | jq -r --arg key "$container" '.[$key]')
+          platform=$(cat ./${{ matrix.containers }}/PLATFORM)
+          container_name=$(echo $container | awk -F'/' '{print $2}')
+          docker buildx build --push --platform $platform -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/$container_name:$app_version ./containers/$container_name

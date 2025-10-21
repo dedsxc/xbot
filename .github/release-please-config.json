@@ -1,0 +1,8 @@
+{
+  "include-v-in-tag": false,
+  "release-search-depth": 50,
+  "commit-search-depth": 50,
+  "release-type": "simple",
+  "packages": {
+  }
+}

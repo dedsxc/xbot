@@ -1,13 +1,15 @@
-name: Push docker image
+name: "Release docker image"
 
 on:
   push:
-    tags:
-      - "*"
-
+    branches:
+      - "main"
+    paths:
+      - "src/**"
+      - "Dockerfile"
 env:
   GHCR_REGISTRY: ghcr.io
-  GHCR_REGISTRY_REPO: ${{ secrets.GHCR_REPO }}
+  GHCR_REGISTRY_REPO: dedsxc
   DOCKERFILE_PATH: Dockerfile
 
 jobs:
