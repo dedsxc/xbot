@@ -4,5 +4,8 @@
   "commit-search-depth": 50,
   "release-type": "simple",
   "packages": {
+    "containers/xbot/": {
+      "component": "xbot"
+    }
   }
 }
