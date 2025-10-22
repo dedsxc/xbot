@@ -2,9 +2,10 @@ name: Build docker image
 
 on: 
   pull_request:
-    paths-ignore:
-      - '.github/**'
-      
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+
 env:
   GHCR_REGISTRY: ghcr.io
   GHCR_REGISTRY_REPO: ${{ secrets.GHCR_REPO }}
@@ -35,8 +36,9 @@ jobs:
       
       - name: Build and Push Docker image
         run: |
-          docker buildx build --push --platform linux/arm64,linux/amd64 -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }} .
-      
+          platform=$(cat ./containers/xbot/PLATFORM)
+          docker buildx build --push --platform $platform -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }} -f ./containers/xbot/Dockerfile .
+
       # Setup and run vulnerability scanner
       - name: Setup trivy markdown template
         run: |
