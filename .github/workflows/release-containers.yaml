@@ -79,8 +79,8 @@ jobs:
 
       - name: Build-Push image
         run: |
-          container=${{ matrix.containers }}
+          container="xbot"
           app_version=$(cat .github/.release-please-manifest.json | jq -r --arg key "$container" '.[$key]')
           platform=$(cat ./${{ matrix.containers }}/PLATFORM)
-          container_name=$(echo $container | awk -F'/' '{print $2}')
+          container_name="xbot"
           docker buildx build --push --platform $platform -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/$container_name:$app_version -f ./containers/$container_name/Dockerfile .
