@@ -4,7 +4,6 @@ ENV USER=user
 
 WORKDIR /app
 COPY src/ /app
-COPY requirements.txt /app/requirements.txt
 
 # Install chromium
 RUN apk update && apk add --no-cache tini chromium=112.0.5615.165-r0 chromium-chromedriver=112.0.5615.165-r0
