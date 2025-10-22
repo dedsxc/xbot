@@ -1,0 +1,12 @@
+{
+  "include-v-in-tag": false,
+  "release-search-depth": 50,
+  "commit-search-depth": 50,
+  "release-type": "simple",
+  "packages": {
+    "src": {
+      "package-name": "xbot",
+      "extra-files": ["containers/xbot/Dockerfile"]
+    }
+  }
+}
