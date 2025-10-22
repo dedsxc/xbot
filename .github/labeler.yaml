@@ -11,8 +11,4 @@ app:
   - all:
     - changed-files:
       - any-glob-to-any-file: 
-        - 'common/**'
-        - 'internal/**'
-        - 'config.ini'
-        - 'requirements.txt'
-        - 'main.py'
+        - 'src/**'
