@@ -11,7 +11,7 @@ on:
 # need for release-please action
 permissions:
   contents: write
-  id-token: write  
+  id-token: write
   attestations: write
   packages: write
   actions: write
@@ -23,7 +23,7 @@ env:
 
 jobs:
   release-please:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     outputs:
       paths_released: ${{ steps.release-please.outputs.paths_released }}
     steps:
@@ -45,7 +45,7 @@ jobs:
           # Advanced configuration: https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md
           config-file: .github/release-please-config.json
           manifest-file: .github/.release-please-manifest.json
-      
+
 
   # Run the following section to push docker image if a release is created
   release-docker-image:
@@ -54,13 +54,13 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.paths_released != '[]' }}
     strategy:
-      fail-fast: false 
+      fail-fast: false
       matrix:
         containers: ${{ fromJson(needs.release-please.outputs.paths_released) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      
+
       - name: Get repository name
         id: get_repo_name
         run: |
@@ -69,7 +69,7 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
-    
+
       - name: Configure Docker
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
         with:
@@ -79,8 +79,7 @@ jobs:
 
       - name: Build-Push image
         run: |
-          container=xbot
-          app_version=$(cat .github/.release-please-manifest.json | jq -r --arg key "$container" '.[$key]')
+          app_version=$(cat .github/.release-please-manifest.json | jq -r --arg key "src" '.[$key]')
           platform=$(cat ./containers/xbot/PLATFORM)
           container_name=xbot
           docker buildx build --push --platform $platform -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/$container_name:$app_version -f ./containers/$container_name/Dockerfile .
