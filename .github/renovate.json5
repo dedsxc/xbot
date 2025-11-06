@@ -8,6 +8,38 @@
       matchDatasources: ['github-tags'],
       groupName: "github-action",
       automerge: true
+    },
+    // Group digest update
+    {
+      "description": "Digest updates",
+      "matchUpdateTypes": ["digest"],
+      "groupName": "components digests",
+      "matchFileNames": ["src/**"],
+      "commitMessagePrefix": "chore:"
+    },
+    // Group patch update
+    {
+      "description": "Patch updates",
+      "matchUpdateTypes": ["patch"],
+      "groupName": "components patches",
+      "matchFileNames": ["src/**"],
+      "commitMessagePrefix": "fix:"
+    },
+    // Group minor update
+    {
+      "description": "Minor updates",
+      "matchUpdateTypes": ["minor"],
+      "groupName": "components minors",
+      "matchFileNames": ["src/**"],
+      "commitMessagePrefix": "feat:"
+    },
+    // Group major update
+    {
+      "description": "Major updates",
+      "matchUpdateTypes": ["major"],
+      "groupName": "components majors",
+      "matchFileNames": ["src/**"],
+      "commitMessagePrefix": "BREAKING CHANGE:"
     }
   ]
 }
