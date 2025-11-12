@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/dedsxc/xbot/compare/xbot-3.2.0...xbot-3.2.1) (2025-11-11)
+
+
+### Bug Fixes
+
+* Update dependency fastapi to v0.121.1 ([#157](https://github.com/dedsxc/xbot/issues/157)) ([9cb2780](https://github.com/dedsxc/xbot/commit/9cb27804184a7360d50dd4646897132dd69f44f0))
+
 ## [3.2.0](https://github.com/dedsxc/xbot/compare/xbot-3.1.4...xbot-3.2.0) (2025-11-06)
 
 
