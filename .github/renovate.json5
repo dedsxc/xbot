@@ -2,12 +2,13 @@
   extends: ['config:recommended','docker:pinDigests','helpers:pinGitHubActionDigests',':pinDevDependencies'],
   automergeType: 'branch',
   labels: ['renovate'],
+  "automergeType": "branch",
   packageRules: [
     {
-      description: 'Auto merge GitHub Actions',
-      matchDatasources: ['github-tags'],
-      groupName: "github-action",
-      automerge: true
+      'description': 'Auto merge GitHub Actions',
+      'matchDatasources': ['github-tags'],
+      'groupName': "github-action",
+      'automerge': 'true'
     },
     // Group digest update
     {
