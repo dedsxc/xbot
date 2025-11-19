@@ -9,6 +9,7 @@ from selenium_stealth import stealth
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromiumService
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -16,7 +17,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 def sanitize_cookie(cookie):
     same_site = cookie.get("sameSite")
     if same_site not in ("Strict", "Lax", "None"):
-        cookie["sameSite"] = "Lax" 
+        cookie["sameSite"] = "Lax"
     cookie.pop("hostOnly", None)
     cookie.pop("session", None)
     return cookie
@@ -35,9 +36,9 @@ def import_external_cookies(driver, cookie_file, url):
         except Exception as e:
             print(f"❌ Erreur cookie {c.get('name')}: {e}")
 
-    driver.refresh() 
+    driver.refresh()
     print(f"✅ {len(fixed_cookies)} cookies importés avec succès")
-    
+
 def tweet_with_media(filename=None, tweet_text=None, tweet_comment=None):
     # Tweet status with media
     options = Options()
@@ -47,7 +48,8 @@ def tweet_with_media(filename=None, tweet_text=None, tweet_comment=None):
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
-    driver = webdriver.Chrome(service=ChromiumService("/usr/bin/chromedriver"), options=options)
+    options.add_argument("--disable-gpu")
+    driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install()), options=options)
     driver.set_window_size("800", "1600")
     stealth(
             driver,
@@ -85,8 +87,8 @@ def twitter_post_media_selenium(driver, status, filename=None):
         driver.save_screenshot("screenshot/status_post.png")
 
     # Wait for media to be uploaded
-    time.sleep(config.getint('global', 'selenium_timeout')) 
-     
+    time.sleep(config.getint('global', 'selenium_timeout'))
+
     # Wait for post button to be accessible with aria-disabled="false"
     WebDriverWait(driver, int(config.getint('global', 'selenium_timeout'))).until(
         lambda d: d.find_element(By.XPATH, "//button[@data-testid='tweetButtonInline']").get_attribute("aria-disabled") != "true")

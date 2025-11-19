@@ -28,6 +28,8 @@ class RedditBot:
         while True:
             for subreddit in normalized_subreddit_list:
                 submission = reddit_client.get_latest_post(subreddit)
+                if not submission:
+                    continue
                 try:
                     # Check for reddit submission if it exists
                     if not db.check_data_exist(submission.id):
@@ -38,16 +40,22 @@ class RedditBot:
                         if submission.is_video:
                             filename = submission.media['reddit_video']['fallback_url'].split("/")[-2] + ".mp4"
                             reddit_media_path = self.media_directory + "/" + filename
-                            download_media(submission.media['reddit_video']['fallback_url'], reddit_media_path)
-                            status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
-                            tweet_with_media(reddit_media_path, status)
-                            os.remove(reddit_media_path)
+                            try:
+                                download_media(submission.media['reddit_video']['fallback_url'], reddit_media_path)
+                                status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                                tweet_with_media(reddit_media_path, status)
+                            finally:
+                                if os.path.exists(reddit_media_path):
+                                    os.remove(reddit_media_path)
                         elif submission.url.split(".")[-1] in self.allowed_media_extension:
                             reddit_media_path = self.media_directory + "/" + submission.url.split("/")[-1]
-                            download_media(submission.url, reddit_media_path)
-                            status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
-                            tweet_with_media(reddit_media_path, status)
-                            os.remove(reddit_media_path)
+                            try:
+                                download_media(submission.url, reddit_media_path)
+                                status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                                tweet_with_media(reddit_media_path, status)
+                            finally:
+                                if os.path.exists(reddit_media_path):
+                                    os.remove(reddit_media_path)
 
                         elif hasattr(submission, "is_gallery") and submission.is_gallery:
                             media_metadata = getattr(submission, "media_metadata", {})
@@ -63,12 +71,15 @@ class RedditBot:
                                     download_media(media_url, reddit_media_path)
                                     medias_path.append(reddit_media_path)
 
-                                # Post tweet with all media files
-                                status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
-                                tweet_with_media(medias_path, status)
-                                # Remove downloaded media files
-                                for media_path in medias_path:
-                                    os.remove(media_path)
+                                try:
+                                    # Post tweet with all media files
+                                    status = f'{submission.title}\nLink: {submission.shortlink}\n\n{" ".join(f"#{hashtag.strip()}" for hashtag in self.hashtag_list if hashtag.strip())}\n\n{self.footer_text}'
+                                    tweet_with_media(medias_path, status)
+                                finally:
+                                    # Remove downloaded media files
+                                    for media_path in medias_path:
+                                        if os.path.exists(media_path):
+                                            os.remove(media_path)
                             else:
                                 log.warning("[post_from_reddit] No media metadata found for gallery post.")
                         else:
@@ -78,4 +89,3 @@ class RedditBot:
                 except Exception as e:
                     log.error("[post_from_reddit] Error while posting tweet: {}".format(e))
             time.sleep(self.delay)
-
