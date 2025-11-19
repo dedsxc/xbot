@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.2](https://github.com/dedsxc/xbot/compare/xbot-3.2.1...xbot-3.2.2) (2025-11-18)
+
+
+### Bug Fixes
+
+* update components patches ([#159](https://github.com/dedsxc/xbot/issues/159)) ([525b802](https://github.com/dedsxc/xbot/commit/525b8028c69cf0bc5afa41016dd5f10f3d674eb4))
+
 ## [3.2.1](https://github.com/dedsxc/xbot/compare/xbot-3.2.0...xbot-3.2.1) (2025-11-11)
 
 
