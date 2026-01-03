@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.1](https://github.com/dedsxc/xbot/compare/xbot-3.3.0...xbot-3.3.1) (2026-01-03)
+
+
+### Bug Fixes
+
+* Update dependency pydantic to v2.12.5 ([#163](https://github.com/dedsxc/xbot/issues/163)) ([f0f2be1](https://github.com/dedsxc/xbot/commit/f0f2be18f90d417df59cd263b511ed32726f98b7))
+
 ## [3.3.0](https://github.com/dedsxc/xbot/compare/xbot-3.2.2...xbot-3.3.0) (2025-12-28)
 
 
