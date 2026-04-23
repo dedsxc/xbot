@@ -101,7 +101,7 @@ jobs:
             {{- end }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # master
         id: trivy_scanner
         with:
           image-ref: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }}
