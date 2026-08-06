@@ -4,12 +4,12 @@ on:
   pull_request:
     paths:
       - 'src/**'
-      - 'Dockerfile'
+      - 'containers/xbot/Dockerfile'
 
 env:
   GHCR_REGISTRY: ghcr.io
   GHCR_REGISTRY_REPO: ${{ secrets.GHCR_REPO }}
-  DOCKERFILE_PATH: Dockerfile
+  DOCKERFILE_PATH: containers/xbot/Dockerfile
 
 permissions:
   contents: read
