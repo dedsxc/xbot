@@ -11,6 +11,10 @@ env:
   GHCR_REGISTRY_REPO: ${{ secrets.GHCR_REPO }}
   DOCKERFILE_PATH: Dockerfile
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build-dev-docker-image:
     runs-on: ubuntu-latest
@@ -34,21 +38,16 @@ jobs:
           username: ${{ secrets.CI_BOT_USERNAME }}
           password: ${{ secrets.CI_BOT_TOKEN }}
       
-      - name: Build Docker image
+      - name: Build test image
         run: |
-          # --load only supports a single platform, so build/scan linux/amd64 even if PLATFORM lists more
-          docker buildx build --load --platform linux/amd64 -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }} -f ./containers/xbot/Dockerfile .
-
-      # Setup and run vulnerability scanner
+          docker buildx build --platform linux/amd64 --load -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }} -f ${{ env.DOCKERFILE_PATH }} .
+      
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        id: trivy_scanner
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }}
-          format: json
+          format: 'json'
           output: 'trivy-results.json'
-          vuln-type: 'os,library'
-          # severity: 'CRITICAL,HIGH'
 
       - name: Build PR comment body
         if: always()
@@ -81,19 +80,9 @@ jobs:
             fi
           } > trivy-comment.md
 
-      - name: Summary report trivy
-        run: cat trivy-comment.md >> $GITHUB_STEP_SUMMARY
-      
-      - name: Generate Token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
-        id: app-token
+      - name: Post Trivy scan results as PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: always()
         with:
-          app-id: "${{ secrets.BOT_APP_ID }}"
-          private-key: "${{ secrets.BOT_APP_PRIV_KEY }}"
-
-      - name: Push trivy comment on PR
-        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-path: 'trivy-comment.md'
-          token: ${{ steps.app-token.outputs.token }}
+          header: trivy-${{ steps.get_repo_name.outputs.repo_name }}
+          path: trivy-comment.md
