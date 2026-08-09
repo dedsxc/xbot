@@ -81,7 +81,7 @@ jobs:
           } > trivy-comment.md
 
       - name: Post Trivy scan results as PR comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         if: always()
         with:
           header: trivy-${{ steps.get_repo_name.outputs.repo_name }}
