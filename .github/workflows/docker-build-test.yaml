@@ -43,7 +43,7 @@ jobs:
           docker buildx build --platform linux/amd64 --load -t ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }} -f ${{ env.DOCKERFILE_PATH }} .
       
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_REGISTRY_REPO }}/${{ steps.get_repo_name.outputs.repo_name }}:pr-${{ github.event.pull_request.number }}
           format: 'json'
